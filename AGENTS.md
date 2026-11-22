@@ -28,3 +28,8 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+- Keep all screen data access in API hooks; the single API entry selects the mock or inactive HTTP adapter so screens remain replaceable.
+- Render mock-dependent content after hydration because localStorage sessions exist only in the browser; use Query suspense boundaries for initial reads.
+- Use TanStack file routes with shared role layouts and URL search parameters for filters; the template's router is fixed.
+- Load the spreadsheet library only for import/export so phone users do not download it on initial navigation.

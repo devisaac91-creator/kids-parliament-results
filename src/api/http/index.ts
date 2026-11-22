@@ -3,7 +3,7 @@
 import { ApiError, type ApiErrorCode } from "@/api/errors";
 import type { Api } from "@/api/types";
 
-const BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "/api";
+const BASE = (import.meta.env['VITE_API_BASE_URL'] as string | undefined) ?? "/api";
 
 async function req<T>(method: string, path: string, body?: unknown): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {

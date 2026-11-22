@@ -3,7 +3,7 @@ import { httpApi } from "./http";
 import { mockApi } from "./mock";
 import type { Api } from "./types";
 
-const useMock = (import.meta.env.VITE_USE_MOCK_API as string | undefined) !== "false";
+const useMock = (import.meta.env['VITE_USE_MOCK_API'] as string | undefined) !== "false";
 
 export const api: Api = useMock ? mockApi : httpApi;
 export const isMockApi = useMock;
