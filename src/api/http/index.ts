@@ -2,6 +2,7 @@
 // Cookies carry the session (credentials: "include"). See docs/API_CONTRACT.md.
 import { ApiError, type ApiErrorCode } from "@/api/errors";
 import type { Api } from "@/api/types";
+import type { User } from "@/types";
 
 const BASE = (import.meta.env['VITE_API_BASE_URL'] as string | undefined) ?? "/api";
 
@@ -31,7 +32,17 @@ export const httpApi: Api = {
     signIn: (email, password) => req("POST", "/auth/signin", { email, password }),
     signUp: (input) => req("POST", "/auth/signup", input),
     signOut: () => req("POST", "/auth/signout"),
-    me: () => req("GET", "/auth/me"),
+    me: async () => {
+      try {
+        const res = await fetch(`${BASE}/auth/me`, {
+          credentials: "include",
+        });
+        if (!res.ok) return null;
+        return (await res.json()) as User | null;
+      } catch {
+        return null;
+      }
+    },
   },
   students: {
     list: (f = {}) => req("GET", `/students${qs({ ...f })}`),
