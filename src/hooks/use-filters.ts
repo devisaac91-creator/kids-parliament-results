@@ -10,6 +10,10 @@ export function validateFilters(raw: Record<string, unknown>): Filters {
 export function useFilters() {
   const search = useSearch({ strict: false });
   const navigate = useNavigate();
-  const set = (patch: Filters) => void navigate({ search: (prev) => ({ ...prev, ...patch }) });
-  return { ...search, set };
+  const filters = validateFilters(search);
+  const set = (patch: Filters) => void navigate({
+    to: '.',
+    search: (prev) => validateFilters({ ...prev, ...patch }),
+  });
+  return { ...filters, set };
 }

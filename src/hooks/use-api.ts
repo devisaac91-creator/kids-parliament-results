@@ -1,5 +1,5 @@
 // Screens access the replaceable API only through these hooks.
-import { useMutation, useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api, errorMessage } from '@/api';
 import type { AuditFilter, StudentFilter } from '@/api/types';
@@ -19,7 +19,11 @@ export const useClassSlips = (periodId?: string, classId?: string) => useSuspens
 export const useAuditLog = (f: AuditFilter) => useSuspenseQuery({ queryKey: ['audit', f], queryFn: () => api.auditLog.list(f) });
 export const useParentSlip = (code: string, periodId: string) => useSuspenseQuery({ queryKey: ['parent-slip', code, periodId], queryFn: () => api.parentAccess.slip(code, periodId) });
 
-export function useAction<TArgs, TResult>(fn: (args: TArgs) => Promise<TResult>, opts: { success?: string | ((r: TResult) => string); silent?: boolean } = {}) {
+type ActionOptions<TResult> = { success?: string | ((r: TResult) => string); silent?: boolean };
+
+export function useAction<TResult>(fn: () => Promise<TResult>, opts?: ActionOptions<TResult>): UseMutationResult<TResult, Error, void>;
+export function useAction<TArgs, TResult>(fn: (args: TArgs) => Promise<TResult>, opts?: ActionOptions<TResult>): UseMutationResult<TResult, Error, TArgs>;
+export function useAction<TArgs, TResult>(fn: (args: TArgs) => Promise<TResult>, opts: ActionOptions<TResult> = {}) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: fn,
