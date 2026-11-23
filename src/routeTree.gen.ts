@@ -24,6 +24,7 @@ import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminSlipsRouteImport } from './routes/admin/slips'
 import { Route as AdminStudentsRouteImport } from './routes/admin/students'
 import { Route as AdminTeachersRouteImport } from './routes/admin/teachers'
+import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as TeacherIndexRouteImport } from './routes/teacher/index'
 import { Route as TeacherReportsRouteImport } from './routes/teacher/reports'
 import { Route as TeacherScoresRouteImport } from './routes/teacher/scores'
@@ -103,6 +104,11 @@ const AdminTeachersRoute = AdminTeachersRouteImport.update({
   path: '/admin/teachers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSplatRoute = ApiSplatRouteImport.update({
+  id: '/api/$',
+  path: '/api/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TeacherIndexRoute = TeacherIndexRouteImport.update({
   id: '/teacher/',
   path: '/teacher/',
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/admin/slips': typeof AdminSlipsRoute
   '/admin/students': typeof AdminStudentsRoute
   '/admin/teachers': typeof AdminTeachersRoute
+  '/api/$': typeof ApiSplatRoute
   '/teacher/reports': typeof TeacherReportsRoute
   '/teacher/scores': typeof TeacherScoresRoute
   '/admin/': typeof AdminIndexRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/admin/slips': typeof AdminSlipsRoute
   '/admin/students': typeof AdminStudentsRoute
   '/admin/teachers': typeof AdminTeachersRoute
+  '/api/$': typeof ApiSplatRoute
   '/teacher/reports': typeof TeacherReportsRoute
   '/teacher/scores': typeof TeacherScoresRoute
   '/admin': typeof AdminIndexRoute
@@ -175,6 +183,7 @@ export interface FileRoutesById {
   '/admin/slips': typeof AdminSlipsRoute
   '/admin/students': typeof AdminStudentsRoute
   '/admin/teachers': typeof AdminTeachersRoute
+  '/api/$': typeof ApiSplatRoute
   '/teacher/reports': typeof TeacherReportsRoute
   '/teacher/scores': typeof TeacherScoresRoute
   '/admin/': typeof AdminIndexRoute
@@ -197,6 +206,7 @@ export interface FileRouteTypes {
     | '/admin/slips'
     | '/admin/students'
     | '/admin/teachers'
+    | '/api/$'
     | '/teacher/reports'
     | '/teacher/scores'
     | '/admin/'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/admin/slips'
     | '/admin/students'
     | '/admin/teachers'
+    | '/api/$'
     | '/teacher/reports'
     | '/teacher/scores'
     | '/admin'
@@ -237,6 +248,7 @@ export interface FileRouteTypes {
     | '/admin/slips'
     | '/admin/students'
     | '/admin/teachers'
+    | '/api/$'
     | '/teacher/reports'
     | '/teacher/scores'
     | '/admin/'
@@ -258,6 +270,7 @@ export interface RootRouteChildren {
   AdminSlipsRoute: typeof AdminSlipsRoute
   AdminStudentsRoute: typeof AdminStudentsRoute
   AdminTeachersRoute: typeof AdminTeachersRoute
+  ApiSplatRoute: typeof ApiSplatRoute
   TeacherReportsRoute: typeof TeacherReportsRoute
   TeacherScoresRoute: typeof TeacherScoresRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -371,6 +384,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTeachersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/$': {
+      id: '/api/$'
+      path: '/api/$'
+      fullPath: '/api/$'
+      preLoaderRoute: typeof ApiSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/teacher/': {
       id: '/teacher/'
       path: '/teacher'
@@ -410,6 +430,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminSlipsRoute: AdminSlipsRoute,
   AdminStudentsRoute: AdminStudentsRoute,
   AdminTeachersRoute: AdminTeachersRoute,
+  ApiSplatRoute: ApiSplatRoute,
   TeacherReportsRoute: TeacherReportsRoute,
   TeacherScoresRoute: TeacherScoresRoute,
   AdminIndexRoute: AdminIndexRoute,

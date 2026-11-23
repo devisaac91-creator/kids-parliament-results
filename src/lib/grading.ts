@@ -1,6 +1,6 @@
 // Pure grading rules. No UI code.
-import { CORE_SUBJECT_IDS, ELECTIVES_COUNTED, SUBJECTS } from "@/constants";
-import type { GradeBand, ScoreValue, Subject, SubjectStrength } from "@/types";
+import { CORE_SUBJECT_IDS, ELECTIVES_COUNTED, SUBJECTS } from "../constants";
+import type { GradeBand, ScoreValue, Subject, SubjectStrength } from "../types";
 
 /** Grade band for a numeric score (0-100). Falls back to the lowest band. */
 export function scoreToGrade(score: number, scale: GradeBand[]): GradeBand {

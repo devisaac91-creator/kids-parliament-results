@@ -1,7 +1,7 @@
 // Pure report builders used by the API layer (mock today, server later).
-import { CORE_SUBJECT_IDS, SUBJECTS } from "@/constants";
-import { gradeForValue, isPass, isTotalPass, round1, scoreToNumber, strengthFor, totalBestSix } from "@/lib/grading";
-import type { AnalysisRow, ClassAnalysis, ExamPeriod, ScoreValue, Settings, Student, StudentSlip, SubjectReport } from "@/types";
+import { CORE_SUBJECT_IDS, SUBJECTS } from "../constants";
+import { gradeForValue, isPass, isTotalPass, round1, scoreToNumber, strengthFor, totalBestSix } from "./grading";
+import type { AnalysisRow, ClassAnalysis, ExamPeriod, ScoreValue, Settings, Student, StudentSlip, SubjectReport } from "../types";
 
 /** scores[studentId][subjectId] */
 export type ScoreMatrix = Record<string, Record<string, ScoreValue>>;
