@@ -91,50 +91,50 @@ function mapUser(row: DbUser): User {
 }
 
 function mapClass(row: Record<string, any>): ClassRoom {
-  return { id: String(row.id), name: String(row.name), level: Number(row.level), archived: false };
+  return { id: String(row["id"]), name: String(row["name"]), level: Number(row["level"]), archived: false };
 }
 
 function mapStudent(row: Record<string, any>): Student {
-  const gender: Gender = row.gender === "M" || row.gender === "Male" ? "M" : "F";
+  const gender: Gender = row["gender"] === "M" || row["gender"] === "Male" ? "M" : "F";
   return {
-    id: String(row.id),
-    fullName: String(row.full_name),
+    id: String(row["id"]),
+    fullName: String(row["full_name"]),
     gender,
-    classId: String(row.class_id),
-    parentCode: String(row.parent_code),
-    status: row.status as Student["status"],
-    createdAt: iso(row.created_at),
+    classId: String(row["class_id"]),
+    parentCode: String(row["parent_code"]),
+    status: row["status"] as Student["status"],
+    createdAt: iso(row["created_at"]),
   };
 }
 
 function mapPeriod(row: Record<string, any>): ExamPeriod {
   return {
-    id: String(row.id),
-    name: String(row.name),
-    month: String(row.month),
-    status: row.status as ExamPeriodStatus,
-    createdAt: iso(row.created_at),
+    id: String(row["id"]),
+    name: String(row["name"]),
+    month: String(row["month"]),
+    status: row["status"] as ExamPeriodStatus,
+    createdAt: iso(row["created_at"]),
   };
 }
 
 function mapAssignment(row: Record<string, any>) {
   return {
-    id: String(row.id),
-    teacherId: String(row.teacher_id),
-    classId: String(row.class_id),
-    subjectId: String(row.subject_id),
+    id: String(row["id"]),
+    teacherId: String(row["teacher_id"]),
+    classId: String(row["class_id"]),
+    subjectId: String(row["subject_id"]),
   };
 }
 
 function mapScore(row: Record<string, any>) {
   return {
-    id: String(row.id),
-    periodId: String(row.period_id),
-    studentId: String(row.student_id),
-    subjectId: String(row.subject_id),
-    value: row.absent ? "absent" as const : Number(row.raw_score),
-    updatedAt: iso(row.updated_at),
-    updatedBy: String(row.entered_by ?? "system"),
+    id: String(row["id"]),
+    periodId: String(row["period_id"]),
+    studentId: String(row["student_id"]),
+    subjectId: String(row["subject_id"]),
+    value: row["absent"] ? "absent" as const : Number(row["raw_score"]),
+    updatedAt: iso(row["updated_at"]),
+    updatedBy: String(row["entered_by"] ?? "system"),
   };
 }
 
@@ -168,17 +168,17 @@ async function readSettings(sql: Sql): Promise<Settings> {
   const rows = await sql`SELECT * FROM settings WHERE id = 1`;
   const row = rows[0] as Record<string, any> | undefined;
   return {
-    schoolName: String(row?.school_name ?? "Kids Parliament Educational Centre"),
-    motto: String(row?.motto ?? "Knowledge Is Power"),
+    schoolName: String(row?.["school_name"] ?? "Kids Parliament Educational Centre"),
+    motto: String(row?.["motto"] ?? "Knowledge Is Power"),
     gradeScale: DEFAULT_GRADE_SCALE,
-    subjectPassMark: Number(row?.pass_mark_subject ?? 50),
-    totalPassMark: Number(row?.pass_mark_total ?? 300),
+    subjectPassMark: Number(row?.["pass_mark_subject"] ?? 50),
+    totalPassMark: Number(row?.["pass_mark_total"] ?? 300),
     logoUrl: "/assets/logo.png",
     stampUrl: "/assets/stamp.png",
     signatureUrl: "/assets/signature.png",
-    signatoryName: String(row?.signatory_name ?? ""),
-    signatoryPosition: String(row?.signatory_title ?? ""),
-    signupCode: String(row?.signup_code ?? ""),
+    signatoryName: String(row?.["signatory_name"] ?? ""),
+    signatoryPosition: String(row?.["signatory_title"] ?? ""),
+    signupCode: String(row?.["signup_code"] ?? ""),
   };
 }
 
@@ -268,7 +268,7 @@ async function getClassInputs(sql: Sql, classId: string, periodId: string) {
     const previousScores = await sql`
       SELECT s.* FROM scores s
       JOIN students st ON st.id = s.student_id
-      WHERE s.period_id = ${previous.id} AND st.class_id = ${classId} AND st.status = 'active'
+      WHERE s.period_id = ${previous["id"]} AND st.class_id = ${classId} AND st.status = 'active'
     `;
     previousMatrix = makeMatrix(students, previousScores as Record<string, any>[]);
   }
@@ -278,10 +278,10 @@ async function getClassInputs(sql: Sql, classId: string, periodId: string) {
 function makeMatrix(students: Student[], scores: Record<string, any>[]): ScoreMatrix {
   const matrix: ScoreMatrix = Object.fromEntries(students.map((student) => [student.id, {}]));
   for (const row of scores) {
-    const values = matrix[String(row.student_id)];
+    const values = matrix[String(row["student_id"])];
     if (!values) continue;
-    if (row.absent) values[String(row.subject_id)] = "absent";
-    else if (row.raw_score !== null && row.raw_score !== undefined) values[String(row.subject_id)] = Number(row.raw_score);
+    if (row["absent"]) values[String(row["subject_id"])] = "absent";
+    else if (row["raw_score"] !== null && row["raw_score"] !== undefined) values[String(row["subject_id"])] = Number(row["raw_score"]);
   }
   return matrix;
 }
@@ -308,8 +308,8 @@ async function handle(req: VercelRequest, res: VercelResponse) {
   if (method === "OPTIONS") return res.status(204).end();
 
   if (path === "/auth/signin" && method === "POST") {
-    const email = requiredString(body.email, "Email").toLowerCase();
-    const password = requiredString(body.password, "Password");
+    const email = requiredString(body["email"], "Email").toLowerCase();
+    const password = requiredString(body["password"], "Password");
     const keyHash = rateKey(req, "signin", email);
     await assertNotRateLimited(sql, "signin", keyHash);
     const rows = await sql`SELECT id, email, full_name, role, teacher_status, created_at, password_hash FROM users WHERE lower(email) = ${email} LIMIT 1`;
@@ -327,10 +327,10 @@ async function handle(req: VercelRequest, res: VercelResponse) {
   }
 
   if (path === "/auth/signup" && method === "POST") {
-    const fullName = requiredString(body.fullName, "Full name");
-    const email = requiredString(body.email, "Email").toLowerCase();
-    const password = requiredString(body.password, "Password");
-    const signupCode = stringValue(body.signupCode);
+    const fullName = requiredString(body["fullName"], "Full name");
+    const email = requiredString(body["email"], "Email").toLowerCase();
+    const password = requiredString(body["password"], "Password");
+    const signupCode = stringValue(body["signupCode"]);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fail(400, "VALIDATION", "Enter a valid email address.");
     if (password.length < 6) fail(400, "VALIDATION", "Password must be at least 6 characters.");
     const settings = await readSettings(sql);
@@ -367,7 +367,7 @@ async function handle(req: VercelRequest, res: VercelResponse) {
   }
 
   if (path === "/parent/lookup" && method === "POST") {
-    const code = requiredString(body.code, "Student code").toUpperCase();
+    const code = requiredString(body["code"], "Student code").toUpperCase();
     const keyHash = rateKey(req, "parent");
     await assertNotRateLimited(sql, "parent", keyHash);
     const rows = await sql`
@@ -384,16 +384,16 @@ async function handle(req: VercelRequest, res: VercelResponse) {
     const student = rows[0] as Record<string, any>;
     const periods = await sql`SELECT * FROM exam_periods WHERE status = 'published' ORDER BY month DESC`;
     return res.json({
-      studentId: String(student.id),
-      fullName: String(student.full_name),
-      className: String(student.class_name),
+      studentId: String(student["id"]),
+      fullName: String(student["full_name"]),
+      className: String(student["class_name"]),
       publishedPeriods: (periods as Record<string, any>[]).map(mapPeriod),
     });
   }
 
   if (path === "/parent/slip" && method === "POST") {
-    const code = requiredString(body.code, "Student code").toUpperCase();
-    const periodId = requiredString(body.periodId, "Exam period");
+    const code = requiredString(body["code"], "Student code").toUpperCase();
+    const periodId = requiredString(body["periodId"], "Exam period");
     const keyHash = rateKey(req, "parent");
     await assertNotRateLimited(sql, "parent", keyHash);
     const studentRows = await sql`SELECT * FROM students WHERE upper(parent_code) = ${code} AND status <> 'withdrawn' LIMIT 1`;
@@ -417,7 +417,7 @@ async function handle(req: VercelRequest, res: VercelResponse) {
     const rows = await sql`SELECT id, name, level FROM classes ORDER BY level`;
     if (user.role === "teacher") {
       const assignments = await sql`SELECT DISTINCT class_id FROM teacher_assignments WHERE teacher_id = ${user.id}`;
-      const allowed = new Set((assignments as Record<string, any>[]).map((row) => String(row.class_id)));
+      const allowed = new Set((assignments as Record<string, any>[]).map((row) => String(row["class_id"])));
       return res.json((rows as Record<string, any>[]).map(mapClass).filter((classroom) => allowed.has(classroom.id)));
     }
     return res.json((rows as Record<string, any>[]).map(mapClass));
@@ -425,8 +425,8 @@ async function handle(req: VercelRequest, res: VercelResponse) {
 
   if (path === "/classes" && method === "POST") {
     await requireUser(req, sql, ["admin"]);
-    const name = requiredString(body.name, "Class name");
-    const level = Number(body.level);
+    const name = requiredString(body["name"], "Class name");
+    const level = Number(body["level"]);
     if (!Number.isInteger(level) || level < 1 || level > 20) fail(400, "VALIDATION", "Class level must be between 1 and 20.");
     const rows = await sql`INSERT INTO classes (name, level) VALUES (${name}, ${level}) RETURNING id, name, level`;
     const classroom = mapClass(rows[0] as Record<string, any>);
@@ -446,17 +446,17 @@ async function handle(req: VercelRequest, res: VercelResponse) {
       return res.json({ moved: 0, graduated: activeRows.length });
     }
     const next = nextRows[0] as Record<string, any>;
-    const occupied = await sql`SELECT COUNT(*)::int AS count FROM students WHERE class_id = ${next.id} AND status = 'active'`;
-    if (Number((occupied[0] as Record<string, any>).count) > 0) fail(409, "CONFLICT", `${next.name} still has students. Promote ${next.name} first.`);
-    await sql`UPDATE students SET class_id = ${next.id} WHERE class_id = ${classroom.id} AND status = 'active'`;
-    await audit(sql, user, "class.promote", "class", classroom.id, `${activeRows.length} students promoted`, classroom.name, String(next.name));
+    const occupied = await sql`SELECT COUNT(*)::int AS count FROM students WHERE class_id = ${next["id"]} AND status = 'active'`;
+    if (Number((occupied[0] as Record<string, any>)["count"]) > 0) fail(409, "CONFLICT", `${next["name"]} still has students. Promote ${next["name"]} first.`);
+    await sql`UPDATE students SET class_id = ${next["id"]} WHERE class_id = ${classroom.id} AND status = 'active'`;
+    await audit(sql, user, "class.promote", "class", classroom.id, `${activeRows.length} students promoted`, classroom.name, String(next["name"]));
     return res.json({ moved: activeRows.length, graduated: 0 });
   }
 
   if (classMatch && !classMatch[2] && method === "PATCH") {
     await requireUser(req, sql, ["admin"]);
     const classroom = await findClass(sql, decodeURIComponent(classMatch[1] ?? ""));
-    const name = requiredString(body.name, "Class name");
+    const name = requiredString(body["name"], "Class name");
     const rows = await sql`UPDATE classes SET name = ${name} WHERE id = ${classroom.id} RETURNING id, name, level`;
     await audit(sql, user, "class.rename", "class", classroom.id, "Renamed class", classroom.name, name);
     return res.json(mapClass(rows[0] as Record<string, any>));
@@ -482,9 +482,9 @@ async function handle(req: VercelRequest, res: VercelResponse) {
   if (path === "/students" && method === "POST") {
     await requireUser(req, sql, ["admin"]);
     const input: NewStudent = {
-      fullName: requiredString(body.fullName, "Full name"),
-      gender: body.gender === "F" ? "F" : "M",
-      classId: requiredString(body.classId, "Class"),
+      fullName: requiredString(body["fullName"], "Full name"),
+      gender: body["gender"] === "F" ? "F" : "M",
+      classId: requiredString(body["classId"], "Class"),
     };
     const student = await createStudent(sql, input);
     await audit(sql, user, "student.create", "student", student.id, `Added ${student.fullName}`);
@@ -493,15 +493,15 @@ async function handle(req: VercelRequest, res: VercelResponse) {
 
   if (path === "/students/bulk" && method === "POST") {
     await requireUser(req, sql, ["admin"]);
-    const classId = requiredString(body.classId, "Class");
+    const classId = requiredString(body["classId"], "Class");
     await findClass(sql, classId);
-    if (!Array.isArray(body.rows)) fail(400, "VALIDATION", "Student rows are required.");
+    if (!Array.isArray(body["rows"])) fail(400, "VALIDATION", "Student rows are required.");
     const created: Student[] = [];
-    for (const raw of body.rows) {
+    for (const raw of body["rows"]) {
       const row = objectBody(raw);
       created.push(await createStudent(sql, {
-        fullName: requiredString(row.fullName, "Student name"),
-        gender: row.gender === "F" ? "F" : "M",
+        fullName: requiredString(row["fullName"], "Student name"),
+        gender: row["gender"] === "F" ? "F" : "M",
         classId,
       }));
     }
@@ -511,8 +511,8 @@ async function handle(req: VercelRequest, res: VercelResponse) {
 
   if (path === "/students/move" && method === "POST") {
     await requireUser(req, sql, ["admin"]);
-    const classId = requiredString(body.classId, "Destination class");
-    const ids = Array.isArray(body.ids) ? body.ids.map((id) => String(id)) : [];
+    const classId = requiredString(body["classId"], "Destination class");
+    const ids = Array.isArray(body["ids"]) ? body["ids"].map((id) => String(id)) : [];
     if (!ids.length) fail(400, "VALIDATION", "Select at least one student.");
     const destination = await findClass(sql, classId);
     for (const id of ids) {
@@ -534,8 +534,8 @@ async function handle(req: VercelRequest, res: VercelResponse) {
     if (method === "PATCH" && !action) {
       await requireUser(req, sql, ["admin"]);
       const student = await findStudent(sql, studentId);
-      const fullName = body.fullName === undefined ? student.fullName : requiredString(body.fullName, "Full name");
-      const gender: Gender = body.gender === undefined ? student.gender : body.gender === "F" ? "F" : "M";
+      const fullName = body["fullName"] === undefined ? student.fullName : requiredString(body["fullName"], "Full name");
+      const gender: Gender = body["gender"] === undefined ? student.gender : body["gender"] === "F" ? "F" : "M";
       const rows = await sql`UPDATE students SET full_name = ${fullName}, gender = ${gender === "M" ? "Male" : "Female"} WHERE id = ${studentId} RETURNING *`;
       const updated = mapStudent(rows[0] as Record<string, any>);
       await audit(sql, user, "student.update", "student", studentId, `Edited ${updated.fullName}`, student.fullName, updated.fullName);
@@ -572,11 +572,11 @@ async function handle(req: VercelRequest, res: VercelResponse) {
     if (action === "approve" && method === "POST") {
       const rows = await sql`UPDATE users SET teacher_status = 'approved' WHERE id = ${teacherId} AND role = 'teacher' RETURNING id, email, full_name, role, teacher_status, created_at`;
       if (!rows.length) fail(404, "NOT_FOUND", "Teacher not found.");
-      await audit(sql, user, "teacher.approve", "user", teacherId, `Approved ${(rows[0] as Record<string, any>).full_name}`);
+      await audit(sql, user, "teacher.approve", "user", teacherId, `Approved ${(rows[0] as Record<string, any>)["full_name"]}`);
       return res.json(mapUser(rows[0] as DbUser));
     }
     if (action === "status" && method === "POST") {
-      const status = body.status as Exclude<UserStatus, "pending">;
+      const status = body["status"] as Exclude<UserStatus, "pending">;
       if (status !== "active" && status !== "disabled") fail(400, "VALIDATION", "Teacher status is invalid.");
       const rows = await sql`UPDATE users SET teacher_status = ${status === "active" ? "approved" : "disabled"} WHERE id = ${teacherId} AND role = 'teacher' RETURNING id, email, full_name, role, teacher_status, created_at`;
       if (!rows.length) fail(404, "NOT_FOUND", "Teacher not found.");
@@ -585,7 +585,7 @@ async function handle(req: VercelRequest, res: VercelResponse) {
       return res.json(updated);
     }
     if (action === "password" && method === "POST") {
-      const password = requiredString(body.password, "Password");
+      const password = requiredString(body["password"], "Password");
       if (password.length < 6) fail(400, "VALIDATION", "Password must be at least 6 characters.");
       const rows = await sql`UPDATE users SET password_hash = ${await bcrypt.hash(password, 12)} WHERE id = ${teacherId} AND role = 'teacher' RETURNING id`;
       if (!rows.length) fail(404, "NOT_FOUND", "Teacher not found.");
@@ -595,10 +595,10 @@ async function handle(req: VercelRequest, res: VercelResponse) {
     if (action === "assignments" && method === "PUT") {
       const teacher = await findUser(sql, teacherId);
       if (!teacher || teacher.role !== "teacher") fail(404, "NOT_FOUND", "Teacher not found.");
-      if (!Array.isArray(body.items)) fail(400, "VALIDATION", "Assignment items are required.");
-      const items = body.items.map((raw) => objectBody(raw)).map((item) => ({
-        classId: requiredString(item.classId, "Class"),
-        subjectId: requiredString(item.subjectId, "Subject"),
+      if (!Array.isArray(body["items"])) fail(400, "VALIDATION", "Assignment items are required.");
+      const items = body["items"].map((raw) => objectBody(raw)).map((item) => ({
+        classId: requiredString(item["classId"], "Class"),
+        subjectId: requiredString(item["subjectId"], "Subject"),
       }));
       const existing = await sql`SELECT id FROM teacher_assignments WHERE teacher_id = ${teacherId}`;
       await sql.transaction([
@@ -626,8 +626,8 @@ async function handle(req: VercelRequest, res: VercelResponse) {
 
   if (path === "/exam-periods" && method === "POST") {
     await requireUser(req, sql, ["admin"]);
-    const name = requiredString(body.name, "Exam period name");
-    const month = requiredString(body.month, "Month");
+    const name = requiredString(body["name"], "Exam period name");
+    const month = requiredString(body["month"], "Month");
     if (!/^\d{4}-\d{2}$/.test(month) || Number(month.slice(5)) < 1 || Number(month.slice(5)) > 12) fail(400, "VALIDATION", "Choose a valid month.");
     const year = Number(month.slice(0, 4));
     const rows = await sql`
@@ -648,7 +648,7 @@ async function handle(req: VercelRequest, res: VercelResponse) {
     if (periodMatch[2] === "status" && method === "POST") {
       await requireUser(req, sql, ["admin"]);
       const period = await findPeriod(sql, periodId);
-      const status = body.status as ExamPeriodStatus;
+      const status = body["status"] as ExamPeriodStatus;
       if (!Object.hasOwn(STATUS_FLOW, status) || !STATUS_FLOW[period.status].includes(status)) fail(400, "VALIDATION", `Cannot change from ${period.status} to ${String(status)}.`);
       const rows = await sql`UPDATE exam_periods SET status = ${status} WHERE id = ${periodId} RETURNING *`;
       await audit(sql, user, "period.status", "period", periodId, period.name, period.status, status);
@@ -660,7 +660,7 @@ async function handle(req: VercelRequest, res: VercelResponse) {
         SELECT (SELECT COUNT(*) FROM students WHERE status = 'active') * ${SUBJECTS.length}
           - (SELECT COUNT(*) FROM scores s JOIN students st ON st.id = s.student_id WHERE s.period_id = ${periodId} AND st.status = 'active') AS missing
       `;
-      return res.json(Number((rows[0] as Record<string, any>).missing));
+      return res.json(Number((rows[0] as Record<string, any>)["missing"]));
     }
   }
 
@@ -692,7 +692,7 @@ async function handle(req: VercelRequest, res: VercelResponse) {
     if (user.role === "teacher" && period.status !== "open") fail(423, "LOCKED", "This exam period is closed for editing.");
     const previousRows = await sql`SELECT * FROM scores WHERE period_id = ${periodId} AND student_id = ${studentId} AND subject_id = ${subjectId} LIMIT 1`;
     const previous = previousRows[0] as Record<string, any> | undefined;
-    const oldValue = previous ? previous.absent ? "absent" : String(previous.raw_score) : "empty";
+    const oldValue = previous ? previous["absent"] ? "absent" : String(previous["raw_score"]) : "empty";
     if (value === null) {
       await sql`DELETE FROM scores WHERE period_id = ${periodId} AND student_id = ${studentId} AND subject_id = ${subjectId}`;
       await audit(sql, user, "score.update", "score", `${periodId}|${studentId}|${subjectId}`, `${student.fullName} · ${subjectId} · ${period.name}`, oldValue, "empty");
@@ -725,7 +725,7 @@ async function handle(req: VercelRequest, res: VercelResponse) {
       ORDER BY c.id, sub.subject_id
     `;
     return res.json((rows as Record<string, any>[]).map((row) => ({
-      classId: String(row.class_id), subjectId: String(row.subject_id), total: Number(row.total), entered: Number(row.entered),
+      classId: String(row["class_id"]), subjectId: String(row["subject_id"]), total: Number(row["total"]), entered: Number(row["entered"]),
     })));
   }
 
@@ -811,13 +811,13 @@ async function handle(req: VercelRequest, res: VercelResponse) {
       ORDER BY timestamp DESC LIMIT 500
     `;
     return res.json((rows as Record<string, any>[]).map((row) => {
-      const details = typeof row.details === "string" ? JSON.parse(row.details) as Record<string, unknown> : row.details as Record<string, unknown> | null;
+      const details = typeof row["details"] === "string" ? JSON.parse(row["details"]) as Record<string, unknown> : row["details"] as Record<string, unknown> | null;
       return {
-      id: String(row.id), at: iso(row.timestamp), actorId: String(row.actor_id ?? ""), actorName: String(row.actor_name),
-      action: String(row.action), entity: String(details?.entity ?? ""), entityId: String(details?.entityId ?? ""),
-      details: String(details?.message ?? JSON.stringify(details ?? {})),
-      ...(details?.oldValue ? { oldValue: String(details.oldValue) } : {}),
-      ...(details?.newValue ? { newValue: String(details.newValue) } : {}),
+      id: String(row["id"]), at: iso(row["timestamp"]), actorId: String(row["actor_id"] ?? ""), actorName: String(row["actor_name"]),
+      action: String(row["action"]), entity: String(details?.["entity"] ?? ""), entityId: String(details?.["entityId"] ?? ""),
+      details: String(details?.["message"] ?? JSON.stringify(details ?? {})),
+      ...(details?.["oldValue"] ? { oldValue: String(details["oldValue"]) } : {}),
+      ...(details?.["newValue"] ? { newValue: String(details["newValue"]) } : {}),
     };
     }));
   }

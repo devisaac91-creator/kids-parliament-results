@@ -10,7 +10,7 @@ export interface SessionPayload {
 }
 
 function getSecret() {
-  const secret = process.env.SESSION_SECRET;
+  const secret = process.env["SESSION_SECRET"];
   if (!secret || secret.length < 32) {
     throw new Error("SESSION_SECRET must be configured with at least 32 characters.");
   }
@@ -24,8 +24,8 @@ export function signToken(payload: SessionPayload): string {
 export function verifyToken(token: string): SessionPayload | null {
   try {
     const decoded = jwt.verify(token, getSecret());
-    if (typeof decoded === "string" || typeof decoded.id !== "string") return null;
-    return { id: decoded.id };
+    if (typeof decoded === "string" || typeof decoded["id"] !== "string") return null;
+    return { id: decoded["id"] };
   } catch {
     return null;
   }
@@ -43,7 +43,7 @@ export function setSessionCookie(res: ServerResponse, token: string): void {
     name: COOKIE_NAME,
     value: token,
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env["NODE_ENV"] === "production",
     sameSite: "lax",
     path: "/",
     maxAge: SESSION_MAX_AGE,
@@ -55,7 +55,7 @@ export function clearSessionCookie(res: ServerResponse): void {
     name: COOKIE_NAME,
     value: "",
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env["NODE_ENV"] === "production",
     sameSite: "lax",
     path: "/",
     maxAge: 0,
