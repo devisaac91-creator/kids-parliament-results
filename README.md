@@ -84,3 +84,15 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Deploy to Vercel
+
+The repository includes `vercel.json`, and `vite.config.ts` selects Nitro's `vercel` preset when Vercel builds the project. Keep **Output Directory** unset in Vercel; Nitro generates `.vercel/output` automatically.
+
+After pushing these files to GitHub, redeploy the Vercel project. In **Settings → Environment Variables**, add:
+
+- `VITE_USE_MOCK_API=true` while using the built-in demonstration data. Change it to `false` only after the production HTTP API is available.
+- `VITE_API_BASE_URL=/api` when using the HTTP API.
+- `DATABASE_URL` and `SESSION_SECRET` only for the server-side production API. Never prefix secrets with `VITE_`, because those values are exposed to the browser.
+
+The current repository still needs its production API implemented before real accounts and Neon records can work.
