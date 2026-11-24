@@ -8,7 +8,8 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useState, type ReactNode } from "react";
+import { LoadingState } from "@/components/states";
 import { Toaster } from "@/components/ui/sonner";
 import { validateFilters } from "@/hooks/use-filters";
 
@@ -133,7 +134,13 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* The app reads the mock API (localStorage) and session in the browser, so render after hydration. */}
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      {hydrated ? <Outlet /> : <div className="min-h-screen bg-background" />}
+      {hydrated ? (
+        <Suspense fallback={<div className="min-h-screen bg-background"><LoadingState /></div>}>
+          <Outlet />
+        </Suspense>
+      ) : (
+        <div className="min-h-screen bg-background" />
+      )}
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );

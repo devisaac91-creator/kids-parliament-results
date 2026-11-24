@@ -2,7 +2,8 @@
 // Cookies carry the session (credentials: "include"). See docs/API_CONTRACT.md.
 import { ApiError, type ApiErrorCode } from "@/api/errors";
 import type { Api } from "@/api/types";
-import type { User } from "@/types";
+import type { Settings, User } from "@/types";
+import { FALLBACK_SETTINGS } from "@/constants";
 
 const BASE = (import.meta.env['VITE_API_BASE_URL'] as string | undefined) ?? "/api";
 
@@ -94,7 +95,15 @@ export const httpApi: Api = {
     regenerateCode: (studentId) => req("POST", `/students/${studentId}/regenerate-code`),
   },
   settings: {
-    get: () => req("GET", "/settings"),
+    // Settings only style the pages; keep sign-in usable if the server cannot answer.
+    get: async () => {
+      try {
+        return await req<Settings>("GET", "/settings");
+      } catch (e) {
+        console.error("Could not load school settings; using defaults.", e);
+        return FALLBACK_SETTINGS;
+      }
+    },
     update: (patch) => req("PATCH", "/settings", patch),
   },
   auditLog: {
