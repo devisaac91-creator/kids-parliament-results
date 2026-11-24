@@ -1,6 +1,6 @@
 # API Contract
 
-The browser calls same-origin `/api` endpoints with JSON and cookie credentials. The Vercel handler is `api/index.ts`; its paths and response shapes match `src/api/http/index.ts` and `src/api/types.ts`.
+The browser calls same-origin `/api` endpoints with JSON and cookie credentials. The server handler is `server/index.ts` (served through the `/api/$` route); its paths and response shapes match `src/api/http/index.ts` and `src/api/types.ts`.
 
 ## Authentication
 - `POST /api/auth/signin` `{ email, password }` -> `{ user: User }`

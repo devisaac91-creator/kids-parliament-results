@@ -834,6 +834,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error) {
     if (error instanceof ApiFault) return res.status(error.status).json({ code: error.code, message: error.message });
     console.error("API error:", error);
+    const message = error instanceof Error ? error.message : "";
+    if (/DATABASE_URL|SESSION_SECRET/.test(message)) {
+      return res.status(503).json({ code: "SERVER", message: "The results server is not set up yet. Please contact the school administrator." });
+    }
     return res.status(500).json({ code: "SERVER", message: "Internal server error." });
   }
 }

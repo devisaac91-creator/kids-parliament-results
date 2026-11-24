@@ -1,7 +1,7 @@
 # Vercel Deployment
 
 1. Run `docs/NEON_FOLLOW_UP.sql` once in the Neon SQL Editor. The API requires the `graduated` student status, a unique exam month, and the durable rate-limit table.
-2. Import the GitHub repository into Vercel and deploy the `main` branch. The Vite config selects Nitro's Vercel preset; use `bun run build` as the build command. Nitro produces the Vercel output and routes both pages and `/api/*` through the same server function. `vercel.json` rewrites nested API paths to the central `/api` function.
+2. Import the GitHub repository into Vercel and deploy the `main` branch. The Vite config selects Nitro's Vercel preset; use `bun run build` as the build command. Nitro produces the Vercel output and routes both pages and `/api/*` through the same server function. The server code lives in `server/`, not a root `api/` folder, so Vercel does not build a second, conflicting function, and `vercel.json` needs no rewrites.
 3. Add these environment variables to the Vercel project. Set the two `VITE_` variables for every environment that should use the live API; they are embedded during build.
 
 | Variable | Value |

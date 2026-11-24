@@ -1,4 +1,4 @@
-import type { GradeBand, Subject } from "@/types";
+import type { GradeBand, Settings, Subject } from "@/types";
 
 export const SUBJECTS: Subject[] = [
   { id: "math", name: "Mathematics", shortName: "Maths", core: true },
@@ -40,3 +40,18 @@ export const PARENT_MAX_ATTEMPTS = 5;
 export const PARENT_LOCKOUT_MS = 5 * 60 * 1000;
 
 export const subjectName = (id: string) => SUBJECTS.find((s) => s.id === id)?.name ?? id;
+
+/** School details shown when the server's settings cannot be loaded (sign-up code is never included). */
+export const FALLBACK_SETTINGS: Settings = {
+  schoolName: "Kids Parliament Educational Centre",
+  motto: "Knowledge Is Power",
+  gradeScale: DEFAULT_GRADE_SCALE,
+  subjectPassMark: DEFAULT_SUBJECT_PASS_MARK,
+  totalPassMark: DEFAULT_TOTAL_PASS_MARK,
+  logoUrl: "/assets/logo.png",
+  stampUrl: "/assets/stamp.png",
+  signatureUrl: "/assets/signature.png",
+  signatoryName: "",
+  signatoryPosition: "Head, Examination Committee",
+  signupCode: "",
+};

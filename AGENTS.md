@@ -34,3 +34,4 @@ use the editor.
 - Use TanStack file routes with shared role layouts and URL search parameters for filters; the template's router is fixed.
 - Load the spreadsheet library only for import/export so phone users do not download it on initial navigation.
 - Target Vercel with Nitro's `vercel` preset only when `VERCEL` is set, preserving Lovable's Cloudflare build elsewhere; Neon credentials must remain server-only.
+- Keep server API code in `server/`, never a root `api/` folder: Vercel would build it as a second, conflicting function beside the Nitro output.
