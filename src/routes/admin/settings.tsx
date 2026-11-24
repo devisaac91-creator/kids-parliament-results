@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppShell, RequireRole } from "@/components/app-shell";
+import { ADMIN_NAV } from "@/components/admin-nav";
 import { useSettings, useAction } from "@/hooks/use-api";
 import { api } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const ADMIN_NAV = [{ to: "/admin", label: "Overview", exact: true }, { to: "/admin/scores", label: "Scores" }, { to: "/admin/reports", label: "Reports" }, { to: "/admin/slips", label: "Result Slips" }, { to: "/admin/settings", label: "Settings" }, { to: "/admin/audit", label: "Activity Log" }];
 export const Route = createFileRoute("/admin/settings")({ head: () => ({ meta: [{ title: "System Settings | Kids Parliament Results" }] }), component: AdminSettingsRoute });
 
 function AdminSettingsRoute() {
