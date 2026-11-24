@@ -2,13 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Printer } from "lucide-react";
 import { AppShell, RequireRole } from "@/components/app-shell";
+import { ADMIN_NAV } from "@/components/admin-nav";
 import { useClasses, usePeriods, useClassAnalysis } from "@/hooks/use-api";
 import { Picker, periodOptions, classOptions } from "@/components/pickers";
 import { ReportView } from "@/components/report-view";
 import { Button } from "@/components/ui/button";
 import { printPage } from "@/lib/export";
 
-const ADMIN_NAV = [{ to: "/admin", label: "Overview", exact: true }, { to: "/admin/scores", label: "Scores" }, { to: "/admin/reports", label: "Reports" }, { to: "/admin/slips", label: "Result Slips" }, { to: "/admin/settings", label: "Settings" }, { to: "/admin/audit", label: "Activity Log" }];
 export const Route = createFileRoute("/admin/reports")({ head: () => ({ meta: [{ title: "Class Performance Reports | Kids Parliament" }] }), component: AdminReportsRoute });
 
 function AdminReportsRoute() {
