@@ -12,7 +12,11 @@ export interface NavItem { to: string; label: string; exact?: boolean }
 export function useSignOut() {
   const qc = useQueryClient();
   const navigate = useNavigate();
-  return async () => { await api.auth.signOut(); qc.clear(); void navigate({ to: "/signin" }); };
+  // Always leave the signed-in screens, even if the server cannot be reached.
+  return async () => {
+    try { await api.auth.signOut(); } catch (e) { console.error("Sign out request failed", e); }
+    finally { qc.clear(); void navigate({ to: "/signin" }); }
+  };
 }
 
 export function AppShell({ nav, children, roleLabel }: { nav: NavItem[]; children: ReactNode; roleLabel: string }) {
